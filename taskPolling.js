@@ -34,11 +34,11 @@ const pollScheduler = () => {
     switch (data.taskType) {
       case 'sms':
         sendSms(data.details.to, data.details.message)
-        pollScheduler() // fetch next task
-
-      default:
-        pollScheduler() // fetch next task
     }
+
+    redisClient.zrem('scheduler', JSON.stringify(data), (err, data) => { // remove the task from scheduler
+      pollScheduler() // poll next task
+    })
   })
 }
 
