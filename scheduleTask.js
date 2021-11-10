@@ -1,22 +1,12 @@
-const redis = require('redis')
-const redisClient = redis.createClient({
-  host: 'localhost',
-  port: 6379
-})
+const { redisClient } = require('./redis')
 
-redisClient.on('error', function (error) {
-  console.log('Error in Redis', error)
-  process.exit(1)
-})
-
-redisClient.on('connect', function () {
-  console.log('redis connected')
-})
-
-const submitTask = (taskDetails, time) => {
-  redisClient.zadd('scheduler', time, taskDetails, (err, data) => {
-    console.log(err, data)
-  })
+const submitTask = async (taskDetails, time) => {
+  try {
+    const data = await redisClient.zadd('scheduler', time, taskDetails)
+    console.log({ data })
+  } catch (error) {
+    console.log({ error })
+  }
 }
 
 const taskData = {
@@ -28,3 +18,7 @@ const taskData = {
 }
 
 submitTask(JSON.stringify(taskData), Math.floor(+new Date('2020-05-01 22:00:00') / 1000))
+
+module.exports = {
+  submitTask
+}
